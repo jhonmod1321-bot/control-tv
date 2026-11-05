@@ -5,14 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.Toast;
 
 public class ButtonAccessibilityService extends AccessibilityService {
 
-    private int volumeUpPressCount = 0;
     private long lastPressTime = 0;
+    private int pressCount = 0;
+    private int lastKeyCode = -1;
     private static final long MULTI_PRESS_TIMEOUT = 500;
 
     @Override
@@ -26,54 +28,96 @@ public class ButtonAccessibilityService extends AccessibilityService {
         int keyCode = event.getKeyCode();
         int action = event.getAction();
 
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP && action == KeyEvent.ACTION_DOWN) {
-            long currentTime = System.currentTimeMillis();
+        int btnIndex = getButtonIndex(keyCode);
+        if (btnIndex == -1) {
+            return super.onKeyEvent(event);
+        }
 
-            if (currentTime - lastPressTime < MULTI_PRESS_TIMEOUT) {
-                volumeUpPressCount++;
+        if (action == KeyEvent.ACTION_DOWN) {
+            if (event.isLongPress()) {
+                executeAction(btnIndex, 2); // Gesto 2: Pulsación Sostenida
+                return true;
+            }
+
+            long currentTime = System.currentTimeMillis();
+            if (keyCode == lastKeyCode && (currentTime - lastPressTime < MULTI_PRESS_TIMEOUT)) {
+                pressCount++;
             } else {
-                volumeUpPressCount = 1;
+                pressCount = 1;
+                lastKeyCode = keyCode;
             }
             lastPressTime = currentTime;
 
-            if (volumeUpPressCount == 3) {
-                volumeUpPressCount = 0;
-                executeConfiguredAction();
-                return true; // Bloquea la acción por defecto para ejecutar la personalizada
+            if (pressCount == 3) {
+                pressCount = 0;
+                executeAction(btnIndex, 1); // Gesto 1: Triple Toque
+                return true;
+            }
+        } else if (action == KeyEvent.ACTION_UP) {
+            long currentTime = System.currentTimeMillis();
+            if (pressCount == 2 && (currentTime - lastPressTime >= MULTI_PRESS_TIMEOUT)) {
+                pressCount = 0;
+                executeAction(btnIndex, 0); // Gesto 0: Doble Toque
+                return true;
             }
         }
 
         return super.onKeyEvent(event);
     }
 
-    private void executeConfiguredAction() {
+    private int getButtonIndex(int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP: return 0;
+            case KeyEvent.KEYCODE_VOLUME_DOWN: return 1;
+            case KeyEvent.KEYCODE_VOLUME_MUTE: return 2;
+            case KeyEvent.KEYCODE_HOME: return 3;
+            case KeyEvent.KEYCODE_BACK: return 4;
+            case KeyEvent.KEYCODE_ASSIST: return 5;
+            case KeyEvent.KEYCODE_POWER: return 6;
+            case KeyEvent.KEYCODE_TV: return 7; // Mapeo común para botones dedicados
+            case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: return 8;
+            default: return -1;
+        }
+    }
+
+    private void executeAction(int btnIndex, int gestureIndex) {
         SharedPreferences preferences = getSharedPreferences("ButtonMapConfig", Context.MODE_PRIVATE);
-        int selectedAction = preferences.getInt("VOL_UP_3_TAP_ACTION", 0);
+        String key = "MAP_" + btnIndex + "_" + gestureIndex;
+        String actionConfig = preferences.getString(key, null);
 
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (actionConfig == null) return;
 
-        switch (selectedAction) {
-            case 0: // Alternar Silencio
-                if (audioManager != null) {
-                    audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_TOGGLE_MUTE, 0);
-                    Toast.makeText(this, "Acción: Mute alternado", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case 1: // Volumen al 50%
-                if (audioManager != null) {
-                    int maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVol / 2, AudioManager.FLAG_SHOW_UI);
-                    Toast.makeText(this, "Acción: Volumen al 50%", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case 2: // Abrir YouTube
-                Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.google.android.youtube.tv");
-                if (launchIntent != null) {
-                    startActivity(launchIntent);
-                } else {
-                    Toast.makeText(this, "YouTube no está instalado", Toast.LENGTH_SHORT).show();
-                }
-                break;
+        if (actionConfig.startsWith("SYS_")) {
+            int sysAction = Integer.parseInt(actionConfig.replace("SYS_", ""));
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+            switch (sysAction) {
+                case 0:
+                    performGlobalAction(GLOBAL_ACTION_HOME);
+                    break;
+                case 1:
+                    if (audioManager != null) {
+                        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_TOGGLE_MUTE, 0);
+                    }
+                    break;
+                case 2:
+                    Intent settIntent = new Intent(Settings.ACTION_SETTINGS);
+                    settIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(settIntent);
+                    break;
+                case 3:
+                    performGlobalAction(GLOBAL_ACTION_RECENTS);
+                    break;
+            }
+        } else if (actionConfig.startsWith("APP_")) {
+            String packageName = actionConfig.replace("APP_", "");
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageName);
+            if (launchIntent != null) {
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(launchIntent);
+            } else {
+                Toast.makeText(this, "La aplicación seleccionada no está disponible", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
