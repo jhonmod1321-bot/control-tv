@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
     private List<String> appPackageNames = new ArrayList<>();
     private List<String> appDisplayNames = new ArrayList<>();
 
-    @Resource
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
