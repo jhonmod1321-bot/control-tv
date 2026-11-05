@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F1015"
+    android:background="#0B0C10"
     android:fillViewport="true">
 
     <LinearLayout
@@ -12,104 +12,132 @@
         android:padding="32dp"
         android:gravity="center_horizontal">
 
-        <!-- Título Principal -->
+        <!-- Encabezado -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mapper Control TV"
-            android:textColor="#FFFFFF"
-            android:textSize="26sp"
+            android:text="MAPPER CONTROL TV - CONFIGURACIÓN"
+            android:textColor="#66FCF1"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="8dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Personaliza los accesos de tu control Chromecast"
-            android:textColor="#8C92A4"
+            android:text="Usa el control de tu Chromecast para personalizar cada botón y gesto"
+            android:textColor="#C5C6C7"
             android:textSize="14sp"
             android:layout_marginBottom="24dp" />
 
-        <!-- Tarjeta de Configuración -->
+        <!-- Panel de Estado / Guía Visual del Control -->
         <LinearLayout
-            android:layout_width="500dp"
+            android:layout_width="600dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#1C1E26"
+            android:background="@drawable/bg_card_selector"
             android:padding="24dp"
-            android:elevation="4dp"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎮 Referencia del Control de Chromecast"
+                android:textColor="#66FCF1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• Vol +, Vol -, Mute (Laterales y frontal)\n• Home (Casita), Back (Atrás), Asistente de Google\n• Botones dedicados de Netflix y YouTube"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:lineSpacingExtra="4dp" />
+        </LinearLayout>
+
+        <!-- Formulario con alto contraste para enfoque en TV -->
+        <LinearLayout
+            android:layout_width="600dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card_selector"
+            android:padding="28dp"
             android:layout_marginBottom="24dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1. Selecciona el Botón del Control"
-                android:textColor="#3DDC84"
-                android:textSize="14sp"
+                android:text="1. Selecciona el Botón a Mapear:"
+                android:textColor="#66FCF1"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
 
             <Spinner
                 android:id="@+id/buttonSpinner"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="#282B36"
+                android:layout_height="55dp"
+                android:background="#1F2833"
                 android:paddingHorizontal="12dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="20dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2. Selecciona el Tipo de Gesto"
-                android:textColor="#3DDC84"
-                android:textSize="14sp"
+                android:text="2. Selecciona el Tipo de Gesto:"
+                android:textColor="#66FCF1"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
 
             <Spinner
                 android:id="@+id/gestureSpinner"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="#282B36"
+                android:layout_height="55dp"
+                android:background="#1F2833"
                 android:paddingHorizontal="12dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="20dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3. Acción a Ejecutar (Sistema o Aplicación)"
-                android:textColor="#3DDC84"
-                android:textSize="14sp"
+                android:text="3. Acción o Aplicación de Destino:"
+                android:textColor="#66FCF1"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
 
             <Spinner
                 android:id="@+id/actionSpinner"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="#282B36"
+                android:layout_height="55dp"
+                android:background="#1F2833"
                 android:paddingHorizontal="12dp"
-                android:layout_marginBottom="24dp" />
+                android:layout_marginBottom="28dp" />
 
+            <!-- Botón Guardar con Alto Contraste y Color Brillante -->
             <Button
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:text="Guardar Configuración de Mapeo"
-                android:backgroundTint="#6200EE"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
+                android:layout_height="60dp"
+                android:text="💾 GUARDAR CONFIGURACIÓN"
+                android:backgroundTint="#66FCF1"
+                android:textColor="#0B0C10"
+                android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Botón de Activación de Accesibilidad -->
+        <!-- Botón de Accesibilidad -->
         <Button
             android:id="@+id/btnAccessibility"
-            android:layout_width="350dp"
-            android:layout_height="50dp"
-            android:text="Activar Servicio de Accesibilidad"
-            android:backgroundTint="#03DAC5"
-            android:textColor="#000000"
+            android:layout_width="400dp"
+            android:layout_height="55dp"
+            android:text="⚡ ACTIVAR SERVICIO DE ACCESIBILIDAD"
+            android:backgroundTint="#45A29E"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
     </LinearLayout>
